@@ -194,7 +194,7 @@ func main() {
 	}).Debug("existingIpAddress")
 
 	if bytes.Compare(net.ParseIP(existingIpAddress), net.ParseIP(ipAddress)) == 0 {
-		log.Info("Ip address has not changed, exiting...")
+		log.Debug("Ip address has not changed, exiting...")
 		return
 	}
 
