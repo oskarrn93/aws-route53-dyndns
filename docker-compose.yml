@@ -2,6 +2,7 @@ version: "3.3"
 services:
   aws-route53-dyndns:
     build: .
+    restart: unless-stopped
     env_file:
      - .env
     volumes:
