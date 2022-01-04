@@ -27,9 +27,12 @@ func getExternalIp() string {
 		log.Fatal("Error retrieving external ip", error)
 	}
 
-	log.WithField("response", response).Debug("getExternalIp response")
-
 	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		log.Fatalln("Non-OK HTTP status when retrieving external ip", response.StatusCode)
+	}
+
 	body, error := io.ReadAll(response.Body)
 
 	if error != nil {
