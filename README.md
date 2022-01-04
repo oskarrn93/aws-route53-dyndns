@@ -12,18 +12,12 @@ This script retrieves the external ip address and updates the A record value for
 go run main.go
 ```
 
-### Production
+### Docker
 
-#### Build
-
-```sh
-go run main.go
-```
-
-#### Run
+The container is running a cron job to run the script every 5 minutes.
 
 ```sh
-./aws-route53-dyndns
+docker-compose up -d
 ```
 
 ## Environment Variables
