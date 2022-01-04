@@ -137,7 +137,7 @@ func getExistingValueForRecord(svc *route53.Route53, hostedZoneId string, record
 func loadEnvironmentVariables() (string, string, string) {
 	error := godotenv.Load()
 	if error != nil {
-		log.Fatalf("Error loading .env file")
+		log.Debug("No .env file found")
 	}
 
 	hostedZoneId, ok := os.LookupEnv("hostedZoneId")
