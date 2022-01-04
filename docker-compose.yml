@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  aws-route53-dyndns:
+    build: .
+    env_file:
+     - .env
+    volumes:
+      - "~/.aws/credentials:/root/.aws/credentials:ro"
