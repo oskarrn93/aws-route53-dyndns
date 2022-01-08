@@ -203,6 +203,14 @@ func initLogger(logLevelString string) {
 }
 
 func initPushover(apiToken string, userKey string) (*pushover.Pushover, *pushover.Recipient) {
+	log.Debug("apiToken", apiToken)
+	log.Debug("userKey", userKey)
+
+	if apiToken == "" || userKey == "" {
+		log.Debug("Missing required credentials for Pushover")
+		return nil, nil
+	}
+
 	app := pushover.New(apiToken)
 
 	recipient := pushover.NewRecipient(userKey)
@@ -211,6 +219,17 @@ func initPushover(apiToken string, userKey string) (*pushover.Pushover, *pushove
 }
 
 func sendPushoverNotification(app *pushover.Pushover, recipient *pushover.Recipient, recordName string) {
+
+	log.WithFields(logrus.Fields{
+		"app":        app,
+		"recipient":  recipient,
+		"recordName": recordName,
+	}).Debug("sendPushoverNotification")
+
+	if app == nil || recipient == nil {
+		log.Debug("Pushover is not configured, will not send push notification")
+		return
+	}
 
 	message := pushover.NewMessageWithTitle(
 		fmt.Sprintf("AWS Route53 DNS record updated for: %s", recordName),

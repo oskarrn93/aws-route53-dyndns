@@ -26,9 +26,9 @@ docker-compose up -d
 | ------------------ | -------------------------------------------------------------------------- | -------- |
 | HOSTED_ZONE_ID     | The Route53 hosted zone id                                                 | ✅       |
 | RECORD_NAME        | The record, e.g. `example.com`                                             | ✅       |
-| PUSHOVER_API_TOKEN | App api token to send push notifications via Pushover                      | ✅       |
-| PUSHOVER_USER_KEY  | Account user key for the recipient to send push notifications via Pushover | ✅       |
 | LOG_LEVEL          | Verbosity level for logger                                                 | ❌       |
+| PUSHOVER_API_TOKEN | App api token to send push notifications via Pushover                      | ❌       |
+| PUSHOVER_USER_KEY  | Account user key for the recipient to send push notifications via Pushover | ❌       |
 
 ## AWS
 
