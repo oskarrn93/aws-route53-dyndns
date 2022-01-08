@@ -19,6 +19,14 @@ import (
 	"github.com/gregdel/pushover"
 )
 
+type envConfig struct {
+	hostedZoneId     string
+	recordName       string
+	logLevel         string
+	pushoverApiToken string
+	pushoverUserKey  string
+}
+
 var log = logrus.New()
 
 func getExternalIp() string {
@@ -140,7 +148,7 @@ func getExistingValueForRecord(svc *route53.Route53, hostedZoneId string, record
 	return ipAddress
 }
 
-func loadEnvironmentVariables() (string, string, string, string, string) {
+func loadEnvironmentVariables() envConfig {
 	error := godotenv.Load()
 	if error != nil {
 		log.Debug("No .env file found")
@@ -174,7 +182,13 @@ func loadEnvironmentVariables() (string, string, string, string, string) {
 		log.Debug("PUSHOVER_USER_KEY not defined in .env file")
 	}
 
-	return hostedZoneId, recordName, logLevel, pushoverApiToken, pushoverUserKey
+	return envConfig{
+		hostedZoneId:     hostedZoneId,
+		recordName:       recordName,
+		logLevel:         logLevel,
+		pushoverApiToken: pushoverApiToken,
+		pushoverUserKey:  pushoverUserKey,
+	}
 }
 
 func initLogger(logLevelString string) {
@@ -214,8 +228,8 @@ func sendPushoverNotification(app *pushover.Pushover, recipient *pushover.Recipi
 func main() {
 	log.Debug("Starting script")
 
-	hostedZoneId, recordName, logLevelString, pushoverApiToken, pushoverUserKey := loadEnvironmentVariables()
-	initLogger(logLevelString)
+	config := loadEnvironmentVariables()
+	initLogger(config.logLevel)
 
 	svc := route53.New(session.New())
 
@@ -224,7 +238,7 @@ func main() {
 		"ipAddress": ipAddress,
 	}).Debug("ipAddress")
 
-	existingIpAddress := getExistingValueForRecord(svc, hostedZoneId, recordName)
+	existingIpAddress := getExistingValueForRecord(svc, config.hostedZoneId, config.recordName)
 	log.WithFields(logrus.Fields{
 		"existingIpAddress": existingIpAddress,
 	}).Debug("existingIpAddress")
@@ -234,13 +248,13 @@ func main() {
 		return
 	}
 
-	updateRecord(svc, hostedZoneId, recordName, ipAddress)
+	updateRecord(svc, config.hostedZoneId, config.recordName, ipAddress)
 
 	log.WithFields(logrus.Fields{
 		"ipAddress":  ipAddress,
-		"recordName": recordName,
+		"recordName": config.recordName,
 	}).Info("Record updated")
 
-	pushoverApp, pushoverRecipient := initPushover(pushoverApiToken, pushoverUserKey)
-	sendPushoverNotification(pushoverApp, pushoverRecipient, recordName)
+	pushoverApp, pushoverRecipient := initPushover(config.pushoverApiToken, config.pushoverUserKey)
+	sendPushoverNotification(pushoverApp, pushoverRecipient, config.recordName)
 }
