@@ -22,11 +22,13 @@ docker-compose up -d
 
 ## Environment Variables
 
-| Name         | Description                    | Required |
-| ------------ | ------------------------------ | -------- |
-| hostedZoneId | The Route53 hosted zone id     | ✅       |
-| recordName   | The record, e.g. `example.com` | ✅       |
-| logLevel     | Verbosity level for logger     | ❌       |
+| Name               | Description                                                                | Required |
+| ------------------ | -------------------------------------------------------------------------- | -------- |
+| HOSTED_ZONE_ID     | The Route53 hosted zone id                                                 | ✅       |
+| RECORD_NAME        | The record, e.g. `example.com`                                             | ✅       |
+| PUSHOVER_API_TOKEN | App api token to send push notifications via Pushover                      | ✅       |
+| PUSHOVER_USER_KEY  | Account user key for the recipient to send push notifications via Pushover | ✅       |
+| LOG_LEVEL          | Verbosity level for logger                                                 | ❌       |
 
 ## AWS
 
