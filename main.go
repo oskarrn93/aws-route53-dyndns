@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+
+	"github.com/gregdel/pushover"
 )
 
 var log = logrus.New()
@@ -137,7 +140,7 @@ func getExistingValueForRecord(svc *route53.Route53, hostedZoneId string, record
 	return ipAddress
 }
 
-func loadEnvironmentVariables() (string, string, string) {
+func loadEnvironmentVariables() (string, string, string, string, string) {
 	error := godotenv.Load()
 	if error != nil {
 		log.Debug("No .env file found")
@@ -161,7 +164,17 @@ func loadEnvironmentVariables() (string, string, string) {
 		logLevel = "info" //default to info logger level
 	}
 
-	return hostedZoneId, recordName, logLevel
+	pushoverApiToken, ok := os.LookupEnv("PUSHOVER_API_TOKEN")
+	if ok == false {
+		log.Debug("PUSHOVER_API_TOKEN not defined in .env file")
+	}
+
+	pushoverUserKey, ok := os.LookupEnv("PUSHOVER_USER_KEY")
+	if ok == false {
+		log.Debug("PUSHOVER_USER_KEY not defined in .env file")
+	}
+
+	return hostedZoneId, recordName, logLevel, pushoverApiToken, pushoverUserKey
 }
 
 func initLogger(logLevelString string) {
@@ -175,10 +188,33 @@ func initLogger(logLevelString string) {
 	log.SetLevel(logLevel)
 }
 
+func initPushover(apiToken string, userKey string) (*pushover.Pushover, *pushover.Recipient) {
+	app := pushover.New(apiToken)
+
+	recipient := pushover.NewRecipient(userKey)
+
+	return app, recipient
+}
+
+func sendPushoverNotification(app *pushover.Pushover, recipient *pushover.Recipient, recordName string) {
+
+	message := pushover.NewMessageWithTitle(
+		fmt.Sprintf("AWS Route53 DNS record updated for: %s", recordName),
+		"DNS record updated",
+	)
+
+	response, err := app.SendMessage(message, recipient)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	log.Debug("response", response)
+}
+
 func main() {
 	log.Debug("Starting script")
 
-	hostedZoneId, recordName, logLevelString := loadEnvironmentVariables()
+	hostedZoneId, recordName, logLevelString, pushoverApiToken, pushoverUserKey := loadEnvironmentVariables()
 	initLogger(logLevelString)
 
 	svc := route53.New(session.New())
@@ -204,4 +240,7 @@ func main() {
 		"ipAddress":  ipAddress,
 		"recordName": recordName,
 	}).Info("Record updated")
+
+	pushoverApp, pushoverRecipient := initPushover(pushoverApiToken, pushoverUserKey)
+	sendPushoverNotification(pushoverApp, pushoverRecipient, recordName)
 }
