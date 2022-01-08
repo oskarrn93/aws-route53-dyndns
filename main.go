@@ -146,19 +146,19 @@ func loadEnvironmentVariables() (string, string, string, string, string) {
 		log.Debug("No .env file found")
 	}
 
-	hostedZoneId, ok := os.LookupEnv("hostedZoneId")
+	hostedZoneId, ok := os.LookupEnv("HOSTED_ZONE_ID")
 
 	if ok == false {
-		log.Fatalf("hostedZoneId is missing in .env file")
+		log.Fatalf("HOSTED_ZONE_ID is missing in .env file")
 	}
 
-	recordName, ok := os.LookupEnv("recordName")
+	recordName, ok := os.LookupEnv("RECORD_NAME")
 
 	if ok == false {
-		log.Fatalf("recordName is missing in .env file")
+		log.Fatalf("RECORD_NAME is missing in .env file")
 	}
 
-	logLevel, ok := os.LookupEnv("logLevel")
+	logLevel, ok := os.LookupEnv("LOG_LEVEL")
 
 	if ok == false {
 		logLevel = "info" //default to info logger level
