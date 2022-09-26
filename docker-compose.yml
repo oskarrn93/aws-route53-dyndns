@@ -1,12 +1,14 @@
 version: "3.3"
 services:
   aws-route53-dyndns:
-    build: 
+    build:
       context: .
       args:
-       - CRON_JOB_INTERVAL_MINUTE=60
+        - CRON_JOB_INTERVAL_MINUTE=60
     restart: unless-stopped
     env_file:
-     - .env
+      - .env
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"
     volumes:
       - "~/.aws/credentials:/root/.aws/credentials:ro"
