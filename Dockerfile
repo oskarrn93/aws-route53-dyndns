@@ -1,4 +1,4 @@
-FROM golang:1.17.5-alpine3.15 AS builder
+FROM golang:1.21.3-alpine3.18 AS builder
 WORKDIR /app
 
 COPY go.mod .
@@ -7,7 +7,7 @@ COPY main.go .
 
 RUN go build
 
-FROM alpine:3.15.0
+FROM alpine:3.18
 WORKDIR /app
 
 # Default is to run cron job every hour
