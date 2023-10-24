@@ -13,11 +13,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53"
 
+	"github.com/gregdel/pushover"
 	"github.com/joho/godotenv"
 	"github.com/muonsoft/validation/validate"
 	"github.com/sirupsen/logrus"
-
-	"github.com/gregdel/pushover"
 )
 
 type envConfig struct {
@@ -60,19 +59,25 @@ func getExternalIp() string {
 	response, error := http.Get(url)
 
 	if error != nil {
-		log.Fatal("Error retrieving external ip", error)
+		log.WithFields(logrus.Fields{
+			"error": error,
+		}).Fatal("Error retrieving external ip")
 	}
 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		log.Fatalln("Non-OK HTTP status when retrieving external ip", response.StatusCode)
+		log.WithFields(logrus.Fields{
+			"responseStatusCode": response.StatusCode,
+		}).Fatalln("Non-OK HTTP status when retrieving external ip")
 	}
 
 	body, error := io.ReadAll(response.Body)
 
 	if error != nil {
-		log.Fatal("Error reading body", error)
+		log.WithFields(logrus.Fields{
+			"error": error,
+		}).Fatal("Error reading body")
 	}
 
 	ipAddress := string(bytes.Trim(body[:], "\n"))
@@ -267,10 +272,14 @@ func sendPushoverNotification(app *pushover.Pushover, recipient *pushover.Recipi
 
 	response, err := app.SendMessage(message, recipient)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(logrus.Fields{
+			"error": err,
+		}).Errorln("Failed to send message using Pushover")
 	}
 
-	log.Debug("response", response)
+	log.WithFields(logrus.Fields{
+		"response": response,
+	}).Debug("Pushover send message response")
 }
 
 func main() {
@@ -284,12 +293,12 @@ func main() {
 	ipAddress := getExternalIp()
 	log.WithFields(logrus.Fields{
 		"ipAddress": ipAddress,
-	}).Debug("ipAddress")
+	}).Debug("Retrieved external ip address")
 
 	existingIpAddress := getExistingValueForRecord(svc, config.hostedZoneId, config.recordName)
 	log.WithFields(logrus.Fields{
 		"existingIpAddress": existingIpAddress,
-	}).Debug("existingIpAddress")
+	}).Debug("Retrieved existing ip address for dns record")
 
 	if bytes.Compare(net.ParseIP(existingIpAddress), net.ParseIP(ipAddress)) == 0 {
 		log.Debug("Ip address has not changed, exiting...")
