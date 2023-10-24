@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 
 	"github.com/joho/godotenv"
+	"github.com/muonsoft/validation/validate"
 	"github.com/sirupsen/logrus"
 
 	"github.com/gregdel/pushover"
@@ -28,6 +29,30 @@ type envConfig struct {
 }
 
 var log = logrus.New()
+
+func isValidIpAddress(ipAddress string) bool {
+	if validate.IPv4(ipAddress) == nil {
+		log.WithFields(logrus.Fields{
+			"ipAddress": ipAddress,
+		}).Debug("Valid ipv4 address")
+		return true
+	}
+	log.WithFields(logrus.Fields{
+		"ipAddress": ipAddress,
+	}).Info("Invalid ipv4 address")
+
+	if validate.IPv6(ipAddress) == nil {
+		log.WithFields(logrus.Fields{
+			"ipAddress": ipAddress,
+		}).Debug("Valid ipv6 address")
+		return true
+	}
+	log.WithFields(logrus.Fields{
+		"ipAddress": ipAddress,
+	}).Info("Invalid ipv6 address")
+
+	return false
+}
 
 func getExternalIp() string {
 	url := "http://checkip.amazonaws.com/"
@@ -52,7 +77,11 @@ func getExternalIp() string {
 
 	ipAddress := string(bytes.Trim(body[:], "\n"))
 
-	//TODO: validate that it's a valid ip address
+	if isValidIpAddress(ipAddress) == false {
+		log.WithFields(logrus.Fields{
+			"ipAddress": ipAddress,
+		}).Fatalln("The parsed value is not a valid ip address")
+	}
 
 	return ipAddress
 }
