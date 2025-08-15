@@ -8,7 +8,8 @@ RUN apk update && apk add make
 COPY makefile .
 COPY go.mod .
 COPY go.sum .
-COPY main.go .
+COPY *.go .
+COPY internal/ internal/
 
 
 # Download & install dependencies
