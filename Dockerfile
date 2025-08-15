@@ -7,7 +7,7 @@ COPY main.go .
 
 RUN go build
 
-FROM alpine:3.18
+FROM alpine:3.22
 WORKDIR /app
 
 # Default is to run cron job every hour
