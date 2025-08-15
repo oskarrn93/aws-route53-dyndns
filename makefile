@@ -11,12 +11,12 @@ help:
 
 .PHONY: install
 install:
-		go install ./...
+	go install ./...
 
 .PHONY: update
 update:
-		go get -u ./...
-		go mod tidy
+	go get -u ./...
+	go mod tidy
 
 .PHONY: run
 run:
@@ -32,4 +32,4 @@ build:
 
 .PHONY: lint
 lint:
-  golangci-lint run
+	golangci-lint run
