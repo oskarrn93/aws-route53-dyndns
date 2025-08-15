@@ -25,6 +25,7 @@ func NewPushover() *notification.PushoverConfig {
 }
 
 type Config struct {
+	AwsRegion    string
 	HostedZoneId string
 	RecordName   string
 	LogLevel     string
@@ -35,6 +36,11 @@ func New() (*Config, error) {
 	error := godotenv.Load()
 	if error != nil {
 		slog.Debug("No .env file found")
+	}
+
+	awsRegion, err := GetRequiredEnvironmentVariable("AWS_REGION")
+	if err != nil {
+		return nil, err
 	}
 
 	hostedZoneId, err := GetRequiredEnvironmentVariable("HOSTED_ZONE_ID")
@@ -50,6 +56,7 @@ func New() (*Config, error) {
 	logLevel := GetOptionalEnvironmentVariable("LOG_LEVEL", "info")
 
 	config := &Config{
+		AwsRegion:    awsRegion,
 		HostedZoneId: hostedZoneId,
 		RecordName:   recordName,
 		LogLevel:     logLevel,

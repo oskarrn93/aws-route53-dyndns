@@ -6,6 +6,15 @@ linters:
     - errcheck
     - staticcheck
     - unused
-
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - io/ioutil.ReadFile
+        - io.Copy(*bytes.Buffer)
+        - io.Copy(os.Stdout)
+        - (io.Closer).Close
+      verbose: true
 run:
   timeout: 2m

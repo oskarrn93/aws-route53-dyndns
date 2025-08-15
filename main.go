@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/route53"
+	awsSdkConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/route53"
 )
 
 func main() {
@@ -31,25 +31,31 @@ func main() {
 
 	config, err := config.New()
 	if err != nil {
-		panic(fmt.Errorf("Invalid configuration: %w", err))
+		panic(fmt.Errorf("invalid configuration: %w", err))
 	}
 
 	logger := logger.NewLoggerWithLevel(config.LogLevel)
-	route53Client := route53.New(session.New())
 	httpClient := httpclient.New()
+
+	awsConfig, err := awsSdkConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to load AWS configuration: %w", err))
+	}
+
+	route53Client := route53.NewFromConfig(awsConfig)
 
 	dnsRecordService := dnsrecord.NewService(dnsrecord.NewRepository(route53Client, httpClient, logger))
 
 	ipAddress, err := dnsRecordService.GetExternalIp(ctx)
 	if err != nil {
-		panic(fmt.Errorf("Failed to retrieve external IP address: %w", err))
+		panic(fmt.Errorf("failed to retrieve external IP address: %w", err))
 	}
 
 	logger.Debug("Retrieved external ip address", "ipAddress", ipAddress)
 
-	existingIpAddress, err := dnsRecordService.GetIpAddressForRecord(config.HostedZoneId, config.RecordName)
+	existingIpAddress, err := dnsRecordService.GetIpAddressForRecord(ctx, config.HostedZoneId, config.RecordName)
 	if err != nil {
-		panic(fmt.Errorf("Failed to retrieve existing DNS record: %w", err))
+		panic(fmt.Errorf("failed to retrieve existing DNS record: %w", err))
 	}
 
 	logger.Debug("Retrieved existing ip address for dns record", "existingIpAddress", existingIpAddress)
@@ -60,9 +66,9 @@ func main() {
 		return
 	}
 
-	err = dnsRecordService.UpdateRecord(config.HostedZoneId, config.RecordName, ipAddress)
+	err = dnsRecordService.UpdateRecord(ctx, config.HostedZoneId, config.RecordName, ipAddress)
 	if err != nil {
-		panic(fmt.Errorf("Failed to update DNS record: %w", err))
+		panic(fmt.Errorf("failed to update DNS record: %w", err))
 	}
 
 	logger.Info("Record updated", "ipAddress", ipAddress, "recordName", config.RecordName)
