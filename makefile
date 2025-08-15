@@ -7,6 +7,7 @@ help:
 	@echo "  run     - Run main.go using go run"
 	@echo "  run-docker - Run the project using Docker Compose"
 	@echo "  help    - Show this help message"
+	@echo "  lint    - Run linter on the project"
 
 .PHONY: install
 install:
@@ -29,4 +30,6 @@ run-docker:
 build:
 	go build -o aws-route53-dyndns main.go
 
-
+.PHONY: lint
+lint:
+  golangci-lint run
