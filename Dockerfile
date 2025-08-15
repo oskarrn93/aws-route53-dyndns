@@ -1,11 +1,21 @@
-FROM golang:1.22.3-alpine3.18 AS builder
+FROM golang:1.25.0-alpine3.22 AS builder
 WORKDIR /app
 
+# Install dependencies
+RUN apk update && apk add make
+
+# Copy files
+COPY makefile .
 COPY go.mod .
 COPY go.sum .
 COPY main.go .
 
-RUN go build
+
+# Download & install dependencies
+RUN make install
+
+# Build the application
+RUN make build
 
 FROM alpine:3.22
 WORKDIR /app
