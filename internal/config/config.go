@@ -25,11 +25,14 @@ func NewPushover() *notification.PushoverConfig {
 }
 
 type Config struct {
-	AwsRegion    string
-	HostedZoneId string
-	RecordName   string
-	LogLevel     string
-	Pushover     *notification.PushoverConfig
+	ServiceName      string
+	ServiceVersion   string
+	AwsRegion        string
+	HostedZoneId     string
+	RecordName       string
+	LogLevel         string
+	Pushover         *notification.PushoverConfig
+	TelemetryEnabled bool
 }
 
 func New() (*Config, error) {
@@ -53,14 +56,19 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
+	telemetryEnabled := GetOptionalEnvironmentVariable("TELEMETETRY_ENABLED", "true") == "true"
+
 	logLevel := GetOptionalEnvironmentVariable("LOG_LEVEL", "info")
 
 	config := &Config{
-		AwsRegion:    awsRegion,
-		HostedZoneId: hostedZoneId,
-		RecordName:   recordName,
-		LogLevel:     logLevel,
-		Pushover:     NewPushover(),
+		ServiceName:      "aws_route53_dyndns",
+		ServiceVersion:   "1.0.0",
+		AwsRegion:        awsRegion,
+		HostedZoneId:     hostedZoneId,
+		RecordName:       recordName,
+		LogLevel:         logLevel,
+		Pushover:         NewPushover(),
+		TelemetryEnabled: telemetryEnabled,
 	}
 
 	return config, nil

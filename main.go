@@ -6,39 +6,42 @@ import (
 	"aws-route53-dyndns/internal/httpclient"
 	"aws-route53-dyndns/internal/logger"
 	"aws-route53-dyndns/internal/notification"
+	"aws-route53-dyndns/internal/telemetry"
 	"context"
 	"fmt"
 	"os"
 	"os/signal"
-	"syscall"
 
 	awsSdkConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/route53"
 )
 
 func main() {
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Handle application termination signals
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-		<-c
-		cancel()
-	}()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
 
-	config, err := config.New()
+	cfg, err := config.New()
 	if err != nil {
-		panic(fmt.Errorf("invalid configuration: %w", err))
+		panic(fmt.Errorf("failed to initialize config: %w", err))
 	}
 
-	logger := logger.NewLoggerWithLevel(config.LogLevel)
+	logger := logger.NewLoggerWithLevel(cfg.LogLevel)
+
+	tel, err := telemetry.New(ctx, cfg, logger)
+	if err != nil {
+		panic(fmt.Errorf("failed to setup telemetry: %w", err))
+	}
+	defer tel.Shutdown(ctx)
+
+	ctx, span := tel.Tracer.Start(ctx, "Job")
+	defer span.End()
+
 	httpClient := httpclient.New()
 
 	awsConfig, err := awsSdkConfig.LoadDefaultConfig(ctx)
 	if err != nil {
+		tel.Increment(ctx, telemetry.FailedRunsMetric)
 		panic(fmt.Errorf("failed to load AWS configuration: %w", err))
 	}
 
@@ -48,13 +51,15 @@ func main() {
 
 	ipAddress, err := dnsRecordService.GetExternalIp(ctx)
 	if err != nil {
+		tel.Increment(ctx, telemetry.FailedRunsMetric)
 		panic(fmt.Errorf("failed to retrieve external IP address: %w", err))
 	}
 
 	logger.Debug("Retrieved external ip address", "ipAddress", ipAddress)
 
-	existingIpAddress, err := dnsRecordService.GetIpAddressForRecord(ctx, config.HostedZoneId, config.RecordName)
+	existingIpAddress, err := dnsRecordService.GetIpAddressForRecord(ctx, cfg.HostedZoneId, cfg.RecordName)
 	if err != nil {
+		tel.Increment(ctx, telemetry.FailedRunsMetric)
 		panic(fmt.Errorf("failed to retrieve existing DNS record: %w", err))
 	}
 
@@ -62,20 +67,28 @@ func main() {
 
 	if dnsrecord.IsEqualIPAddresses(ipAddress, existingIpAddress) {
 		logger.Debug("Ip address has not changed")
+
+		tel.Increment(ctx, telemetry.IPAddressNotChangedMetric)
+		tel.Increment(ctx, telemetry.SuccessfulRunsMetric)
+
 		logger.Info("Done")
 		return
 	}
 
-	err = dnsRecordService.UpdateRecord(ctx, config.HostedZoneId, config.RecordName, ipAddress)
+	err = dnsRecordService.UpdateRecord(ctx, cfg.HostedZoneId, cfg.RecordName, ipAddress)
 	if err != nil {
+		tel.Increment(ctx, telemetry.FailedRunsMetric)
 		panic(fmt.Errorf("failed to update DNS record: %w", err))
 	}
 
-	logger.Info("Record updated", "ipAddress", ipAddress, "recordName", config.RecordName)
+	logger.Info("Record updated", "ipAddress", ipAddress, "recordName", cfg.RecordName)
 
-	pushoverNotification := notification.NewPushoverNotication(config.Pushover, logger)
-	pushoverNotification.Send(config.RecordName)
-	logger.Debug("Notification sent", "recordName", config.RecordName)
+	pushoverNotification := notification.NewPushoverNotication(cfg.Pushover, logger)
+	pushoverNotification.Send(cfg.RecordName)
+	logger.Debug("Notification sent", "recordName", cfg.RecordName)
+
+	tel.Increment(ctx, telemetry.IPAddressChangedMetric)
+	tel.Increment(ctx, telemetry.SuccessfulRunsMetric)
 
 	logger.Info("Done")
 }
