@@ -9,7 +9,7 @@ require (
 	github.com/gregdel/pushover v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/muonsoft/validation v0.17.0
-	resty.dev/v3 v3.0.0-beta.3
+	resty.dev/v3 v3.0.0-beta.6
 )
 
 require (
@@ -24,5 +24,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.33.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.38.0 // indirect
 	github.com/aws/smithy-go v1.22.5 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/net v0.43.0 // indirect
 )
