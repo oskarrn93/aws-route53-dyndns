@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.56.2
 	github.com/gregdel/pushover v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/muonsoft/validation v0.17.0
+	github.com/muonsoft/validation v0.19.0
 	resty.dev/v3 v3.0.0-beta.6
 )
 
