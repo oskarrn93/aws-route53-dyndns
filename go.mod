@@ -9,7 +9,7 @@ require (
 	github.com/gregdel/pushover v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/muonsoft/validation v0.17.0
-	resty.dev/v3 v3.0.0-beta.6
+	resty.dev/v3 v3.0.0-rc.2
 )
 
 require (
