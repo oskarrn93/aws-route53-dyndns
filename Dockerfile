@@ -24,7 +24,8 @@ WORKDIR /app
 # Default is to run cron job every hour
 ARG CRON_JOB_INTERVAL_MINUTE=60
 
-RUN apk update && apk add dumb-init
+# gcompat lets the glibc aws_signing_helper (Roles Anywhere credential_process) run on Alpine
+RUN apk update && apk add dumb-init gcompat
 
 COPY --from=builder /app/aws-route53-dyndns /app/aws-route53-dyndns 
 
