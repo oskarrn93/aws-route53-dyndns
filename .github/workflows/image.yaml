@@ -3,6 +3,11 @@ name: Publish image
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag to publish from the selected ref, e.g. v1.0.1
+        required: true
 
 permissions:
   contents: read
@@ -26,4 +31,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+            ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name || inputs.tag }}
