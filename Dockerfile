@@ -18,7 +18,7 @@ RUN make install
 # Build the application
 RUN make build
 
-FROM alpine:3.23
+FROM alpine:3.24
 WORKDIR /app
 
 # Default is to run cron job every hour
