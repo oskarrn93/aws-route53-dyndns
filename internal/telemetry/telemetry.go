@@ -143,7 +143,13 @@ func (t *Telemetry) TraceStart(ctx context.Context, name string) (context.Contex
 
 // Shutdown shuts down the logger, meter, and tracer.
 func (t *Telemetry) Shutdown(ctx context.Context) {
-	t.LoggerProvider.Shutdown(ctx)
-	t.MeterProvider.Shutdown(ctx)
-	t.TracerProvider.Shutdown(ctx)
+	if err := t.LoggerProvider.Shutdown(ctx); err != nil {
+		t.Logger.Warn("failed to shut down logger provider", "error", err)
+	}
+	if err := t.MeterProvider.Shutdown(ctx); err != nil {
+		t.Logger.Warn("failed to shut down meter provider", "error", err)
+	}
+	if err := t.TracerProvider.Shutdown(ctx); err != nil {
+		t.Logger.Warn("failed to shut down tracer provider", "error", err)
+	}
 }
