@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.56.2
 	github.com/gregdel/pushover v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/muonsoft/validation v0.17.0
+	github.com/muonsoft/validation v0.20.0
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.23.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.47.0

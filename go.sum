@@ -47,8 +47,8 @@ github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 h1:/Tnpcb2E0Pz/tN9s3bfEY2Q8ePC
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0/go.mod h1:zOBXOsUaBSjKgmH4OGzV1esUpR3oUSCPYVd2cUBjKYY=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
-github.com/muonsoft/validation v0.17.0 h1:DJWkurO4KkbR1j3+6P2jLdIQ1IZ4yVaB51zt1cwuzVo=
-github.com/muonsoft/validation v0.17.0/go.mod h1:SvSLoc09OMfHyfd985psMSnKGLwvIs+8UTkw01qINck=
+github.com/muonsoft/validation v0.20.0 h1:xJ02Su8+ARRzg1mbLg+xC92DCshCk9hhFGXXdvGoyM8=
+github.com/muonsoft/validation v0.20.0/go.mod h1:lhOtkb0f+mD/JHo7wIIYnaObyHriY7WFtdy8ckY2J0E=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
