@@ -29,7 +29,7 @@ func (r *Repository) GetExternalIp(ctx context.Context) (string, error) {
 
 	defer response.Body.Close()
 
-	if !response.IsSuccess() {
+	if !response.IsStatusSuccess() {
 		return "", fmt.Errorf("failed to retrieve external ip: %d", response.StatusCode())
 	}
 
