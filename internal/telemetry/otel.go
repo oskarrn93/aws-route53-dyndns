@@ -67,7 +67,10 @@ func newTracerProvider(ctx context.Context, res *resource.Resource) (*trace.Trac
 
 // newResource creates a new OTEL resource with the service name and version.
 func newResource(serviceName string, serviceVersion string) *resource.Resource {
-	hostName, _ := os.Hostname()
+	hostName, err := os.Hostname()
+	if err != nil {
+		hostName = "unknown"
+	}
 
 	return resource.NewWithAttributes(
 		semconv.SchemaURL,
